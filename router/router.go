@@ -16,4 +16,9 @@ func SetupRoutes(app *fiber.App) {
 	user.Post("/create", handler.CreateUser)
 	user.Post("/login", handler.Login)
 	user.Post("/updatePassword",handler.UpdatePassword)
+	user.Post("/checkUsername",handler.CheckIfUsernameExists)
+	user.Post("/checkGmail",handler.CheckIfGmailExists)
+	user.Post("/checkGithub",handler.CheckIfGithubExists)
+	user.Post("/recoverPassword",handler.PasswordRecovery)
+	user.Post("/updatePassword",handler.UpdatePassword)
 }
