@@ -32,27 +32,39 @@ func TwoFA(tempToken string) error {
 	return InsertOrUpdateOTP(tempToken, GenerateOTP())
 }
 
-func ValidateAndDeleteOTP(tempToken,otp string) error {
-	db:=database.DB
+func ValidateAndDeleteOTP(tempToken, otp string) error {
+	db := database.DB
 	var deletedRows []model.OtpQueue
-	db.Clauses(clause.Returning{}).Where("TempToken = ?", tempToken).Delete(&deletedRows)
-	if len(deletedRows)==0{
-		return fmt.Errorf("no otp entry matches the given temp_token")
-	}
-	if deletedRows[0].Otp!=otp{
-		return fmt.Errorf("fdsfdsfds")
+	db.Unscoped().Clauses(clause.Returning{}).Where("temp_token = ? AND otp = ?", tempToken,otp).Delete(&deletedRows)
+	if len(deletedRows) == 0 {
+		return fmt.Errorf("bad request")
 	}
 	return nil
 
 }
 
-func OtpHandler(c *fiber.Ctx) error {
-	var body struct{TempToken string `json:"temp_token"`}
-	c.BodyParser(&body)
-	err:=TwoFA(body.TempToken)
-	if err!=nil{
-		return c.Status(400).JSON(fiber.Map{"message":"couldnt generate otp"})
+func ValidationHandler(c *fiber.Ctx) error {
+	var body struct {
+		TempToken string `json:"temp_token"`
+		Otp       string `json:"otp"`
 	}
-	return c.Status(200).JSON(fiber.Map{"message":"otp generated successfully"})
-	
+	c.BodyParser(&body)
+	err := ValidateAndDeleteOTP(body.TempToken, body.Otp)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(200).JSON(fiber.Map{"message": "otp validated"})
+}
+
+func OtpHandler(c *fiber.Ctx) error {
+	var body struct {
+		TempToken string `json:"temp_token"`
+	}
+	c.BodyParser(&body)
+	err := TwoFA(body.TempToken)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err})
+	}
+	return c.Status(200).JSON(fiber.Map{"message": "otp generated successfully"})
+
 }
