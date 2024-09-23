@@ -66,7 +66,6 @@ func CreateUser(c *fiber.Ctx) error {
 }
 
 func LoginWithPassword(c *fiber.Ctx) error {
-	// authHeader := c.Get("Authorization")[7:]
 	var body loginInfo
 	c.BodyParser(&body)
 
