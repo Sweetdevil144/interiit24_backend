@@ -69,7 +69,7 @@ func ValidationHandler(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"token":token})
+	return c.Status(200).JSON(fiber.Map{"token": token})
 }
 
 func OtpHandler(c *fiber.Ctx) error {

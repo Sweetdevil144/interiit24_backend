@@ -11,7 +11,7 @@ func SendOTP(to, otp string) error {
 	password := config.Config("SMTP_PASSWORD")
 	from := config.Config("SMTP_EMAIL")
 	smtpHost := config.Config("SMTP_HOST")
-	smtpPort:=config.Config("SMTP_PORT")
+	smtpPort := config.Config("SMTP_PORT")
 	message := []byte(fmt.Sprintf("Subject: OTP\r\n\r\notp : %s\r\n", otp))
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, []string{to}, message)
@@ -22,9 +22,9 @@ func SendOTP(to, otp string) error {
 	return nil
 }
 
-func SendMail(tempToken,otp string) error {
-	_,gmail,err:=DeserialiseTempToken(tempToken)
-	if err!=nil{
+func SendMail(tempToken, otp string) error {
+	_, gmail, err := DeserialiseTempToken(tempToken)
+	if err != nil {
 		return err
 	}
 	return SendOTP(gmail, otp)
