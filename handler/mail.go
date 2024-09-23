@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
+	// "github.com/gofiber/fiber/v2"
 	smtp "net/smtp"
 	"server/config"
 )
@@ -22,10 +22,18 @@ func SendOTP(to, otp string) error {
 	return nil
 }
 
-func SendMail(c *fiber.Ctx) error {
-	err := SendOTP("devgup04@gmail.com", "1234")
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"message": err})
+func SendMail(tempToken,otp string) error {
+	_,gmail,err:=DeserialiseTempToken(tempToken)
+	if err!=nil{
+		return err
 	}
-	return c.Status(200).JSON(fiber.Map{"message": "success"})
+	return SendOTP(gmail, otp)
 }
+
+// func SendMail(c *fiber.Ctx) error {
+// 	err := SendOTP("devgup04@gmail.com", "1234")
+// 	if err != nil {
+// 		return c.Status(400).JSON(fiber.Map{"message": err})
+// 	}
+// 	return c.Status(200).JSON(fiber.Map{"message": "success"})
+// }

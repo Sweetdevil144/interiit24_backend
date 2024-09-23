@@ -5,6 +5,7 @@ import (
 	_ "fmt"
 	"server/database"
 	"server/model"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -68,7 +69,6 @@ func CreateUser(c *fiber.Ctx) error {
 func LoginWithPassword(c *fiber.Ctx) error {
 	var body loginInfo
 	c.BodyParser(&body)
-
 	db := database.DB
 	var result model.User
 	queryRes := db.First(&result, &model.User{Username: body.Username})
@@ -76,9 +76,13 @@ func LoginWithPassword(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"message": "body not found"})
 	}
 	if CheckPasswordWithHash(result.Password, body.Password) {
-		token, _ := SerialiseUser(body.Username)
+		tempToken, err := SerialiseTempToken(result.Username,result.Gmail)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
+		}
 		return c.Status(200).JSON(fiber.Map{
-			"token": token,
+			"temp_token": tempToken,
+			"expires_at": time.Now().Add(10 * time.Minute),
 		})
 	} else {
 		return c.Status(400).JSON(fiber.Map{
@@ -104,9 +108,13 @@ func LoginWithGmail(c *fiber.Ctx) error {
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	} else {
-		token, _ := SerialiseUser(result.Username)
+		tempToken, err := SerialiseTempToken(result.Username,result.Gmail)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
+		}
 		return c.Status(200).JSON(fiber.Map{
-			"token": token,
+			"temp_token": tempToken,
+			"expires_at": time.Now().Add(10 * time.Minute),
 		})
 	}
 }
@@ -127,9 +135,13 @@ func LoginWithGithub(c *fiber.Ctx) error {
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	} else {
-		token, _ := SerialiseUser(result.Username)
+		tempToken, err := SerialiseTempToken(result.Username,result.Gmail)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
+		}
 		return c.Status(200).JSON(fiber.Map{
-			"token": token,
+			"temp_token": tempToken,
+			"expires_at": time.Now().Add(10 * time.Minute),
 		})
 	}
 }

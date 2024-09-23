@@ -11,7 +11,7 @@ import (
 func SetupRoutes(app *fiber.App) {
 	api := app.Group("/api", logger.New())
 	api.Get("/", handler.Hello)
-	api.Get("/mail", handler.SendMail)
+	// api.Get("/mail", handler.SendMail)
 	api.Post("/twoFA", handler.OtpHandler)
 	api.Post("/validateOTP",handler.ValidationHandler)
 

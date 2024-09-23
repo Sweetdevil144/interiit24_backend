@@ -29,13 +29,18 @@ func InsertOrUpdateOTP(tempToken, otp string) error {
 }
 
 func TwoFA(tempToken string) error {
-	return InsertOrUpdateOTP(tempToken, GenerateOTP())
+	otp := GenerateOTP()
+	err := SendMail(tempToken, otp)
+	if err != nil {
+		return err
+	}
+	return InsertOrUpdateOTP(tempToken, otp)
 }
 
 func ValidateAndDeleteOTP(tempToken, otp string) error {
 	db := database.DB
 	var deletedRows []model.OtpQueue
-	db.Unscoped().Clauses(clause.Returning{}).Where("temp_token = ? AND otp = ?", tempToken,otp).Delete(&deletedRows)
+	db.Unscoped().Clauses(clause.Returning{}).Where("temp_token = ? AND otp = ?", tempToken, otp).Delete(&deletedRows)
 	if len(deletedRows) == 0 {
 		return fmt.Errorf("bad request")
 	}
@@ -53,7 +58,18 @@ func ValidationHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
-	return c.Status(200).JSON(fiber.Map{"message": "otp validated"})
+
+	username, _, err := DeserialiseTempToken(body.TempToken)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	token, err := SerialiseUser(username)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"token":token})
 }
 
 func OtpHandler(c *fiber.Ctx) error {
