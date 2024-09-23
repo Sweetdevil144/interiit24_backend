@@ -13,7 +13,6 @@ func SearchCompanies(c *fiber.Ctx) error {
 	if query == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Query parameter is required"})
 	}
-
 	var companies []models.Company
 	if err := database.DB.Where("name LIKE ? OR code LIKE ?", "%"+query+"%", "%"+query+"%").Find(&companies).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Unable to fetch companies"})
@@ -22,11 +21,15 @@ func SearchCompanies(c *fiber.Ctx) error {
 	return c.JSON(companies)
 }
 
+func ComputeData(c *fiber.Ctx) error {
+	companyID, err := c.ParamsUInt("companyID") 
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid company ID"})
+	}
 
-func ComputeData(companyID uint) (fiber.Map, error) {
 	var company models.Company
 	if err := database.DB.Preload("Financials").First(&company, companyID).Error; err != nil {
-		return nil, err
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Company not found"})
 	}
 
 	result := make(map[string]interface{})
@@ -57,10 +60,10 @@ func ComputeData(companyID uint) (fiber.Map, error) {
 	result["greater_metrics_global"] = CountGreaterMetricsGlobal(company)
 	analysisResult, err := AnalyzeCompanyStatistics(companyID)
 	if err != nil {
-		analysisResult=nil
+		analysisResult = nil
 	}
 	result["analysis"] = analysisResult
-	return result, nil
+	return c.JSON(result) 
 }
 
 func calculatePercentageChange(previous, current float64) float64 {
