@@ -46,14 +46,15 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 	body.Password = string(hashedPassword[:])
 
-	var newUser model.User
-	newUser.Name = body.Name
-	newUser.Gmail = body.Gmail
+	newUser:= model.User{
+		Name : body.Name,
+		Gmail : body.Gmail,
+		Password : body.Password,
+		Username : body.Username,
+	}
 	if body.Github != "" {
 		newUser.Github = body.Github
 	}
-	newUser.Password = body.Password
-	newUser.Username = body.Username
 
 	queryRes := db.Create(&newUser)
 
@@ -77,7 +78,8 @@ func LoginWithPassword(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"message": "body not found"})
 	}
 	if utils.CheckPasswordWithHash(result.Password, body.Password) {
-		tempToken, err := utils.SerialiseTempToken(result.Username, result.Gmail)
+		tempToken, _ := utils.SerialiseTempToken(result.Username, result.Gmail)
+		err:=utils.TwoFA(tempToken)
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}
@@ -109,7 +111,8 @@ func LoginWithGmail(c *fiber.Ctx) error {
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	} else {
-		tempToken, err := utils.SerialiseTempToken(result.Username, result.Gmail)
+		tempToken, _ := utils.SerialiseTempToken(result.Username, result.Gmail)
+		err:=utils.TwoFA(tempToken)
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}
@@ -136,7 +139,8 @@ func LoginWithGithub(c *fiber.Ctx) error {
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	} else {
-		tempToken, err := utils.SerialiseTempToken(result.Username, result.Gmail)
+		tempToken, _ := utils.SerialiseTempToken(result.Username, result.Gmail)
+		err:=utils.TwoFA(tempToken)
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}

@@ -3,16 +3,20 @@ package config
 import (
 	"fmt"
 	"os"
-
+	"path/filepath"
 	"github.com/joho/godotenv"
 )
 
-// Config func to get env value
 func Config(key string) string {
-	// load .env file
-	err := godotenv.Load(".env")
+	path,_:=os.Getwd()
+	dir, err := filepath.Abs(filepath.Dir(path))
 	if err != nil {
-		fmt.Print("Error loading .env file")
+		fmt.Print(err)
+	}
+	environmentPath := filepath.Join(dir, ".env")
+	err = godotenv.Load(environmentPath)
+	if err != nil {
+		fmt.Println("Error loading .env file")
 	}
 	return os.Getenv(key)
 }
