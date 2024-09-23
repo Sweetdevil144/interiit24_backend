@@ -13,7 +13,8 @@ func GenerateOTP() string {
 	return otp
 }
 
-// func TwoFA(tempToken string) error {
-// 	otp:=GenerateOTP()
+func TwoFA(tempToken string) error {
+	// otp:=GenerateOTP()
+	return nil
 
-// }
+}
