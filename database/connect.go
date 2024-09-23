@@ -15,7 +15,6 @@ func ConnectDB() {
 	var err error
 	p := config.Config("DB_PORT")
 	port, err := strconv.ParseUint(p, 10, 32)
-
 	if err != nil {
 		panic("failed to parse database port")
 	}
@@ -28,6 +27,6 @@ func ConnectDB() {
 	}
 
 	fmt.Println("Connection Opened to Database")
-	DB.AutoMigrate( &model.User{}, &model.OtpQueue{})
+	DB.AutoMigrate( &model.User{}, &model.OtpQueue{},&model.Company{},&model.FinancialData{})
 	fmt.Println("Database Migrated")
 }

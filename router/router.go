@@ -3,7 +3,6 @@ package router
 import (
 	"server/handler"
 	// "server/middleware"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
@@ -24,4 +23,8 @@ func SetupRoutes(app *fiber.App) {
 	user.Post("/checkGithub", handler.CheckIfGithubExists)
 	user.Post("/recoverPassword", handler.PasswordRecovery)
 	user.Post("/updatePassword", handler.UpdatePassword)
+	user.Get("/search-logs", handler.GetUserSearchLog)
+
+	analysis := api.Group("/analysis")
+	analysis.Get("/compute/:companyID", handler.ComputeData)
 }
