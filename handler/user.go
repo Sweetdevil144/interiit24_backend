@@ -5,6 +5,7 @@ import (
 	_ "fmt"
 	"server/database"
 	"server/model"
+	"server/utils"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -34,7 +35,7 @@ type loginInfo struct {
 func CreateUser(c *fiber.Ctx) error {
 	body := new(userInfo)
 	c.BodyParser(&body)
-	token, _ := SerialiseUser(body.Username)
+	token, _ := utils.SerialiseUser(body.Username)
 	db := database.DB
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), 4)
 
@@ -75,8 +76,8 @@ func LoginWithPassword(c *fiber.Ctx) error {
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "body not found"})
 	}
-	if CheckPasswordWithHash(result.Password, body.Password) {
-		tempToken, err := SerialiseTempToken(result.Username,result.Gmail)
+	if utils.CheckPasswordWithHash(result.Password, body.Password) {
+		tempToken, err := utils.SerialiseTempToken(result.Username, result.Gmail)
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}
@@ -94,7 +95,7 @@ func LoginWithPassword(c *fiber.Ctx) error {
 func LoginWithGmail(c *fiber.Ctx) error {
 	var body loginInfo
 	c.BodyParser(&body)
-	gmail, err := DeserialiseGmailToken(body.Token)
+	gmail, err := utils.DeserialiseGmailToken(body.Token)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "invalid token",
@@ -108,7 +109,7 @@ func LoginWithGmail(c *fiber.Ctx) error {
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	} else {
-		tempToken, err := SerialiseTempToken(result.Username,result.Gmail)
+		tempToken, err := utils.SerialiseTempToken(result.Username, result.Gmail)
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}
@@ -121,7 +122,7 @@ func LoginWithGmail(c *fiber.Ctx) error {
 func LoginWithGithub(c *fiber.Ctx) error {
 	var body loginInfo
 	c.BodyParser(&body)
-	github, err := DeserialiseGithubToken(body.Token)
+	github, err := utils.DeserialiseGithubToken(body.Token)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "invalid token",
@@ -135,7 +136,7 @@ func LoginWithGithub(c *fiber.Ctx) error {
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	} else {
-		tempToken, err := SerialiseTempToken(result.Username,result.Gmail)
+		tempToken, err := utils.SerialiseTempToken(result.Username, result.Gmail)
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}
@@ -189,7 +190,7 @@ func PasswordRecovery(c *fiber.Ctx) error {
 	c.BodyParser(&body)
 	db := database.DB
 	var result model.User
-	gmail, err := DeserialiseGmailToken(body.Gmail)
+	gmail, err := utils.DeserialiseGmailToken(body.Gmail)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid gmail token"})
 	}
@@ -210,7 +211,7 @@ func UpdatePassword(c *fiber.Ctx) error {
 	var body updatePasswordInfo
 	c.BodyParser(&body)
 	authHeader := c.Get("Authorization")[7:]
-	username, err := DeserialiseUser(authHeader)
+	username, err := utils.DeserialiseUser(authHeader)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid token"})
 	}
@@ -220,7 +221,7 @@ func UpdatePassword(c *fiber.Ctx) error {
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "invalid username"})
 	}
-	if !CheckPasswordWithHash(result.Password, body.OldPassword) {
+	if !utils.CheckPasswordWithHash(result.Password, body.OldPassword) {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid password"})
 	}
 
