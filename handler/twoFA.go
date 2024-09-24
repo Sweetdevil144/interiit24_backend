@@ -9,9 +9,10 @@ func ValidationHandler(c *fiber.Ctx) error {
 	var body struct {
 		TempToken string `json:"temp_token"`
 		Otp       string `json:"otp"`
+		OtpType   string `json:"otp_type"`
 	}
 	c.BodyParser(&body)
-	err := utils.ValidateAndDeleteOTP(body.TempToken, body.Otp)
+	err := utils.ValidateAndDeleteOTP(body.TempToken, body.Otp, body.OtpType)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -34,7 +35,7 @@ func OtpHandler(c *fiber.Ctx) error {
 		TempToken string `json:"temp_token"`
 	}
 	c.BodyParser(&body)
-	err := utils.TwoFA(body.TempToken)
+	err := utils.TwoFA(body.TempToken, "login")
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err})
 	}

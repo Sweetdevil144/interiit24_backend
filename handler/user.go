@@ -25,11 +25,21 @@ type updatePasswordInfo struct {
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
 }
+type passwordRecoveryInfo struct {
+	Otp         string `json:"otp"`
+	TempToken   string `json:"temp_token"`
+	NewPassword string `json:"new_password"`
+}
 
 type loginInfo struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Token    string `json:"token"`
+}
+
+type tempLoginInfo struct {
+	Username string `json:"username"`
+	Gmail    string `json:"gmail"`
 }
 
 func CreateUser(c *fiber.Ctx) error {
@@ -46,11 +56,11 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 	body.Password = string(hashedPassword[:])
 
-	newUser:= model.User{
-		Name : body.Name,
-		Gmail : body.Gmail,
-		Password : body.Password,
-		Username : body.Username,
+	newUser := model.User{
+		Name:     body.Name,
+		Gmail:    body.Gmail,
+		Password: body.Password,
+		Username: body.Username,
 	}
 	if body.Github != "" {
 		newUser.Github = body.Github
@@ -75,11 +85,11 @@ func LoginWithPassword(c *fiber.Ctx) error {
 	var result model.User
 	queryRes := db.First(&result, &model.User{Username: body.Username})
 	if queryRes.RowsAffected == 0 {
-		return c.Status(404).JSON(fiber.Map{"message": "body not found"})
+		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	}
 	if utils.CheckPasswordWithHash(result.Password, body.Password) {
 		tempToken, _ := utils.SerialiseTempToken(result.Username, result.Gmail)
-		err:=utils.TwoFA(tempToken)
+		err := utils.TwoFA(tempToken, "login")
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}
@@ -112,7 +122,7 @@ func LoginWithGmail(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	} else {
 		tempToken, _ := utils.SerialiseTempToken(result.Username, result.Gmail)
-		err:=utils.TwoFA(tempToken)
+		err := utils.TwoFA(tempToken, "login")
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}
@@ -140,7 +150,7 @@ func LoginWithGithub(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	} else {
 		tempToken, _ := utils.SerialiseTempToken(result.Username, result.Gmail)
-		err:=utils.TwoFA(tempToken)
+		err := utils.TwoFA(tempToken, "login")
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
 		}
@@ -190,25 +200,50 @@ func CheckIfGithubExists(c *fiber.Ctx) error {
 }
 
 func PasswordRecovery(c *fiber.Ctx) error {
-	var body userInfo
+	var body passwordRecoveryInfo
 	c.BodyParser(&body)
 	db := database.DB
 	var result model.User
-	gmail, err := utils.DeserialiseGmailToken(body.Gmail)
+	username, _, err := utils.DeserialiseTempToken(body.TempToken)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"message": "invalid gmail token"})
+		return c.Status(400).JSON(fiber.Map{"message": "invalid temp_token"})
 	}
-	queryRes := db.First(&result, &model.User{Username: body.Username, Gmail: gmail})
+	err = utils.ValidateAndDeleteOTP(body.TempToken, body.Otp, "recovery")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": "invalid temp_token/otp"})
+
+	}
+	queryRes := db.First(&result, &model.User{Username: username})
 	if queryRes.RowsAffected == 0 {
-		return c.Status(404).JSON(fiber.Map{"message": "invalid username or email"})
+		return c.Status(404).JSON(fiber.Map{"message": "user doesnt exist"})
 	}
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(body.Password), 4)
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(body.NewPassword), 4)
 	result.Password = string(hashedPassword[:])
 	queryRes = db.Save(&result)
 	if queryRes.RowsAffected == 0 {
 		return c.Status(502).JSON(fiber.Map{"message": "couldnt update password"})
 	}
 	return c.Status(200).JSON(fiber.Map{"message": "password updated successfully"})
+}
+
+func TempLogin(c *fiber.Ctx) error {
+	var body tempLoginInfo
+	c.BodyParser(&body)
+	db := database.DB
+	var result model.User
+	queryRes := db.First(&result, &model.User{Username: body.Username, Gmail: body.Gmail})
+	if queryRes.RowsAffected == 0 {
+		return c.Status(404).JSON(fiber.Map{"message": "invalid username or email"})
+	}
+	tempToken, _ := utils.SerialiseTempToken(result.Username, result.Gmail)
+	err := utils.TwoFA(tempToken, "recovery")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": "couldnt issue 2FA"})
+	}
+	return c.Status(200).JSON(fiber.Map{
+		"temp_token": tempToken,
+		"expires_at": time.Now().Add(10 * time.Minute),
+	})
 }
 
 func UpdatePassword(c *fiber.Ctx) error {

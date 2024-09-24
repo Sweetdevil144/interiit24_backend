@@ -16,10 +16,10 @@ func GenerateOTP() string {
 	return otp
 }
 
-func InsertOrUpdateOTP(tempToken, otp string) error {
+func InsertOrUpdateOTP(tempToken, otp, otp_type string) error {
 	db := database.DB
-	err := db.Where(model.OtpQueue{TempToken: tempToken}).
-		Assign(model.OtpQueue{TempToken: tempToken, Otp: otp, ExpiresAt: time.Now().Add(10 * time.Minute)}).
+	err := db.Where(model.OtpQueue{TempToken: tempToken, OtpType: otp_type}).
+		Assign(model.OtpQueue{TempToken: tempToken, OtpType: otp_type, Otp: otp, ExpiresAt: time.Now().Add(10 * time.Minute)}).
 		FirstOrCreate(&model.OtpQueue{}).Error
 	return err
 }

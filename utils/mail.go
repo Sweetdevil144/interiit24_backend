@@ -6,12 +6,12 @@ import (
 	"server/config"
 )
 
-func SendOTP(to, otp string) error {
+func SendOTP(to, otp,otp_type string) error {
 	password := config.Config("SMTP_PASSWORD")
 	from := config.Config("SMTP_EMAIL")
 	smtpHost := config.Config("SMTP_HOST")
 	smtpPort := config.Config("SMTP_PORT")
-	message := []byte(fmt.Sprintf("Subject: OTP\r\n\r\notp : %s\r\n", otp))
+	message := []byte(fmt.Sprintf("Subject: OTP\r\n\r\notp : %s\r\ntype : %s", otp,otp_type))
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, []string{to}, message)
 	if err != nil {
@@ -21,12 +21,12 @@ func SendOTP(to, otp string) error {
 	return nil
 }
 
-func SendMail(tempToken, otp string) error {
+func SendMail(tempToken, otp, otp_type string) error {
 	_, gmail, err := DeserialiseTempToken(tempToken)
 	if err != nil {
 		return err
 	}
-	return SendOTP(gmail, otp)
+	return SendOTP(gmail, otp, otp_type)
 }
 
 // func SendMail(c *fiber.Ctx) error {

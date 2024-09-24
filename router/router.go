@@ -22,6 +22,7 @@ func SetupRoutes(app *fiber.App) {
 	user.Post("/checkGmail", handler.CheckIfGmailExists)
 	user.Post("/checkGithub", handler.CheckIfGithubExists)
 	user.Post("/recoverPassword", handler.PasswordRecovery)
+	user.Post("/tempLogin", handler.TempLogin)
 	user.Post("/updatePassword", handler.UpdatePassword)
 	user.Get("/search-logs", handler.GetUserSearchLog)
 
