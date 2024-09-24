@@ -5,10 +5,13 @@ import (
 	// "server/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func SetupRoutes(app *fiber.App) {
+	
 	api := app.Group("/api", logger.New())
+	app.Use(cors.New())
 	api.Get("/", handler.Hello)
 	// api.Get("/mail", handler.SendMail)
 	api.Post("/twoFA", handler.OtpHandler)

@@ -15,5 +15,5 @@ func main() {
 	database.ConnectDB()
 	cache.Init()
 	router.SetupRoutes(app)
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":6969"))
 }
