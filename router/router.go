@@ -26,6 +26,7 @@ func SetupRoutes(app *fiber.App) {
 	user.Post("/updatePassword", handler.UpdatePassword)
 	user.Get("/search-logs", handler.GetUserSearchLog)
 
-	analysis := api.Group("/analysis")
-	analysis.Get("/compute/:companyID", handler.ComputeData)
+	company := api.Group("/company")
+	company.Get("/search", handler.SearchCompanies)
+	company.Get("/compute/:companyID", handler.ComputeData)
 }

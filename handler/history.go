@@ -3,7 +3,6 @@ package handler
 import (
 	"server/database"
 	"server/model"
-
 	"github.com/gofiber/fiber/v2"
 )
 
