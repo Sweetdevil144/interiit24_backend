@@ -34,6 +34,6 @@ func SetupRoutes(app *fiber.App) {
 	company.Get("/compute/:companyID", handler.ComputeData)
 	company.Get("/:companyID/financials", handler.FetchFinancialData)
 
-	user.Get("/user/search-history", handler.ListSearchHistories)
+	user.Get("/search-history", handler.ListSearchHistories)
 	user.Get("/search-histories/:id", handler.GetSearchHistoryByID)
 }
