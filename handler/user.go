@@ -64,7 +64,6 @@ func GetUserProfile(c *fiber.Ctx) error {
 		"gmail":    result.Gmail,
 		"github":    result.Github,
 	})
-
 }
 
 func CreateUser(c *fiber.Ctx) error {
