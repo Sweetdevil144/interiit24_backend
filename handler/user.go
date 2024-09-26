@@ -3,6 +3,7 @@ package handler
 import (
 	// "strconv"
 	// "fmt"
+	"fmt"
 	_ "fmt"
 	"server/database"
 	"server/model"
@@ -79,14 +80,15 @@ func CreateUser(c *fiber.Ctx) error {
 		})
 	}
 	body.Password = string(hashedPassword[:])
-
+	gmail,_:=utils.DeserialiseGmailToken(body.Gmail)
 	newUser := model.User{
 		Name:     body.Name,
-		Gmail:    body.Gmail,
+		Gmail:    gmail,
 		Password: body.Password,
 		Username: body.Username,
 	}
 	if body.Github != "" {
+		// gmail,_:=utils.DeserialiseGithubToken(body.Gmail)
 		newUser.Github = body.Github
 	}
 
@@ -215,6 +217,7 @@ func CheckIfGmailExists(c *fiber.Ctx) error {
 	db := database.DB
 	var result model.User
 	queryRes := db.First(&result, &model.User{Gmail: body.Gmail})
+	fmt.Println(result)
 	return c.Status(200).JSON(fiber.Map{"userExists": queryRes.RowsAffected == 1})
 }
 func CheckIfGithubExists(c *fiber.Ctx) error {
