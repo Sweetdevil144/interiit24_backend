@@ -30,7 +30,6 @@ func DeserialiseUser(signedToken string) (string, error) {
 		return "", err
 	}
 	claims, _ := token.Claims.(jwt.MapClaims)
-
 	return claims["username"].(string), nil
 }
 

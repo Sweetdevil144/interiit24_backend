@@ -2,12 +2,14 @@ package handler
 
 import (
 	"log"
-	"time"
-	"github.com/gofiber/fiber/v2"
+	"math"
 	"server/database"
 	"server/model"
-	"math"
+	"server/helpers"
+	"time"
+	"github.com/gofiber/fiber/v2"
 )
+
 
 func SearchCompanies(c *fiber.Ctx) error {
 	query := c.Query("name")
@@ -23,7 +25,7 @@ func SearchCompanies(c *fiber.Ctx) error {
 }
 
 func ComputeData(c *fiber.Ctx) error {
-	userID := getUserIDFromContext(c);
+	userId, err := helpers.GetUserFromContext(c)
 	companyID, err := c.ParamsInt("companyID") 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid company ID"})
@@ -63,7 +65,7 @@ func ComputeData(c *fiber.Ctx) error {
 	result["analysis"] = analysisResult;
 
 	var searchHistory = model.SearchHistory{
-		UserID:      userID,
+		UserID:      userId,
 		CompanyID:   uint(companyID),
 		StoredResult: result, 
 		Timestamp:   time.Now(),
