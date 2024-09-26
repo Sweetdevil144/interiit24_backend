@@ -1,8 +1,10 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
+	// "fmt"
 	"server/utils"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func ValidationHandler(c *fiber.Ctx) error {
@@ -12,6 +14,7 @@ func ValidationHandler(c *fiber.Ctx) error {
 		OtpType   string `json:"otp_type"`
 	}
 	c.BodyParser(&body)
+	// fmt.Println(body.TempToken,body.Otp,body.OtpType)
 	err := utils.ValidateAndDeleteOTP(body.TempToken, body.Otp, body.OtpType)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
