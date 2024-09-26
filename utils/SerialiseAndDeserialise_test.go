@@ -23,6 +23,5 @@ func TestTempToken(t *testing.T) {
 		if(username!=Tests[i][0] || gmail!=Tests[i][1]){
 			t.Errorf("error on TC#%d",i)
 		}
-
 	}
 }
