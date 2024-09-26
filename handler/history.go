@@ -4,17 +4,12 @@ import (
 	"errors"
 	"server/database"
 	"server/model"
-	"strconv"
 	"gorm.io/gorm"
 	"github.com/gofiber/fiber/v2"
 )
 
 func ListSearchHistories(c *fiber.Ctx) error {
-	userIDStr := c.Params("userID")
-	userID, err := strconv.Atoi(userIDStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
-	}
+	userID := getUserIDFromContext(c);
 	var searchHistories []model.SearchHistory
 	if err := database.DB.Where("user_id = ?", userID).
 		Order("timestamp DESC").
@@ -24,9 +19,10 @@ func ListSearchHistories(c *fiber.Ctx) error {
 	}
 	return c.JSON(searchHistories)
 }
+
 func GetSearchHistoryByID(c *fiber.Ctx) error {
 	historyID := c.Params("id")
-	userID := c.Locals("userID").(uint)
+	userID := getUserIDFromContext(c);
 	var searchHistory model.SearchHistory
 	if err := database.DB.Where("id = ? AND user_id = ?", historyID, userID).First(&searchHistory).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
