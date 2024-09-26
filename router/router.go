@@ -20,6 +20,7 @@ func SetupRoutes(app *fiber.App) {
 	user := api.Group("/user")
 	user.Post("/create", handler.CreateUser)
 	user.Post("/login", handler.Login)
+	user.Post("/profile", handler.GetUserProfile)
 	user.Post("/updatePassword", handler.UpdatePassword)
 	user.Post("/checkUsername", handler.CheckIfUsernameExists)
 	user.Post("/checkGmail", handler.CheckIfGmailExists)

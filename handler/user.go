@@ -2,6 +2,7 @@ package handler
 
 import (
 	// "strconv"
+	// "fmt"
 	_ "fmt"
 	"server/database"
 	"server/model"
@@ -40,6 +41,30 @@ type loginInfo struct {
 type tempLoginInfo struct {
 	Username string `json:"username"`
 	Gmail    string `json:"gmail"`
+}
+
+func GetUserProfile(c *fiber.Ctx) error {
+	var body struct {
+		Token string `json:"token"`
+	}
+	c.BodyParser(&body)
+	username, err := utils.DeserialiseUser(body.Token)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": "invalid token not found"})
+	}
+	db := database.DB
+	var result model.User
+	queryRes := db.Select("username", "name", "gmail", "github").First(&result, &model.User{Username: username})
+	if queryRes.RowsAffected == 0 {
+		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
+	}
+	return c.Status(200).JSON(fiber.Map{
+		"username": result.Username,
+		"name":    result.Name,
+		"gmail":    result.Gmail,
+		"github":    result.Github,
+	})
+
 }
 
 func CreateUser(c *fiber.Ctx) error {
@@ -83,7 +108,10 @@ func LoginWithPassword(c *fiber.Ctx) error {
 	c.BodyParser(&body)
 	db := database.DB
 	var result model.User
+	// fmt.Println("username : ",body.Username)
 	queryRes := db.First(&result, &model.User{Username: body.Username})
+	// fmt.Println(queryRes.RowsAffected)
+	// fmt.Println(result)
 	if queryRes.RowsAffected == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "user not found"})
 	}
