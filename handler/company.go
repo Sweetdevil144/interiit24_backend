@@ -9,7 +9,7 @@ import (
 )
 
 func SearchCompanies(c *fiber.Ctx) error {
-	query := c.Query("query")
+	query := c.Query("name")
 	if query == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Query parameter is required"})
 	}
@@ -17,7 +17,6 @@ func SearchCompanies(c *fiber.Ctx) error {
 	if err := database.DB.Where("name LIKE ? OR code LIKE ?", "%"+query+"%", "%"+query+"%").Find(&companies).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Unable to fetch companies"})
 	}
-
 	return c.JSON(companies)
 }
 
