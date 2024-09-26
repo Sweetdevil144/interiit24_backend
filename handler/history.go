@@ -1,41 +1,38 @@
 package handler
 
 import (
+	"errors"
 	"server/database"
 	"server/model"
+	"strconv"
+	"gorm.io/gorm"
 	"github.com/gofiber/fiber/v2"
 )
 
-func SaveSearchHistory(userID uint, searchTerm string) error {
-	db:=database.DB
-	history := model.SearchHistory{UserID: userID, SearchTerm: searchTerm}
-	return db.Create(&history).Error
-}
-
-func GetSearchHistory(userID uint) ([]model.SearchHistory, error) {
-	db:=database.DB
-	var histories []model.SearchHistory
-	err := db.Model(&model.SearchHistory{}).
-	Where("user_id = ?", userID).
-	Order("timestamp desc").
-	Find(&histories).Error
-	return histories, err
-}
-
-func getUserIDFromContext(c *fiber.Ctx) uint {
-	userID, ok := c.Locals("userID").(uint)
-	if !ok {
-		return 0 
-	}
-	return userID
-}
-
-func GetUserSearchLog(c *fiber.Ctx) error {
-	userID := getUserIDFromContext(c)
-	logs, err := GetSearchHistory(userID)
+func ListSearchHistories(c *fiber.Ctx) error {
+	userIDStr := c.Params("userID")
+	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Database error"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
 	}
-	return c.JSON(logs)
+	var searchHistories []model.SearchHistory
+	if err := database.DB.Where("user_id = ?", userID).
+		Order("timestamp DESC").
+		Limit(10).
+		Find(&searchHistories).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Unable to fetch search histories"})
+	}
+	return c.JSON(searchHistories)
 }
-
+func GetSearchHistoryByID(c *fiber.Ctx) error {
+	historyID := c.Params("id")
+	userID := c.Locals("userID").(uint)
+	var searchHistory model.SearchHistory
+	if err := database.DB.Where("id = ? AND user_id = ?", historyID, userID).First(&searchHistory).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Search history not found"})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Unable to fetch search history"})
+	}
+	return c.JSON(searchHistory)
+}
