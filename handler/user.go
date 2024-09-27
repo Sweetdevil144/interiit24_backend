@@ -1,10 +1,10 @@
 package handler
 
 import (
-	// "strconv"
-	// "fmt"
+	"encoding/json"
 	"fmt"
-	_ "fmt"
+	"net/http"
+	"server/config"
 	"server/database"
 	"server/model"
 	"server/utils"
@@ -42,6 +42,83 @@ type loginInfo struct {
 type tempLoginInfo struct {
 	Username string `json:"username"`
 	Gmail    string `json:"gmail"`
+}
+
+type GitHubAccessTokenResponse struct {
+    AccessToken string `json:"access_token"`
+    TokenType   string `json:"token_type"`
+    Scope       string `json:"scope"`
+}
+
+type GitHubUserProfile struct {
+    Login string `json:"login"`
+    Name  string `json:"name"`
+    Email string `json:"email"`
+}
+
+func GitHubLogin(c *fiber.Ctx) error {
+	type request struct {
+		Code string `json:"code"`
+	}
+
+	var data request
+	if err := c.BodyParser(&data); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to parse request"})
+	}
+
+	tokenResponse, err := exchangeCodeForAccessToken(data.Code)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to exchange code for token"})
+	}
+
+	userData, err := fetchGitHubUserData(tokenResponse.AccessToken)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch GitHub user data"})
+	}
+
+	return c.JSON(userData)
+}
+
+func exchangeCodeForAccessToken(code string) (*GitHubAccessTokenResponse, error) {
+    clientID := []byte(config.Config(("GITHUB_CLIENT_ID")))
+    clientSecret := []byte(config.Config(("GITHUB_CLIENT_SECRET")))
+    url := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s", clientID, clientSecret, code)
+    req, err := http.NewRequest("POST", url, nil)
+    if err != nil {
+        return nil, err
+    }
+    req.Header.Add("Accept", "application/json")
+    client := &http.Client{}
+    res, err := client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer res.Body.Close()
+    var tokenResponse GitHubAccessTokenResponse
+    if err := json.NewDecoder(res.Body).Decode(&tokenResponse); err != nil {
+        return nil, err
+    }
+    return &tokenResponse, nil
+}
+
+func fetchGitHubUserData(accessToken string) (*GitHubUserProfile, error) {
+    url := "https://api.github.com/user"
+    req, err := http.NewRequest("GET", url, nil)
+    if err != nil {
+        return nil, err
+    }
+    req.Header.Add("Authorization", "Bearer "+accessToken)
+    client := &http.Client{}
+    res, err := client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer res.Body.Close()
+    var userProfile GitHubUserProfile
+    if err := json.NewDecoder(res.Body).Decode(&userProfile); err != nil {
+        return nil, err
+    }
+    return &userProfile, nil
 }
 
 func GetUserProfile(c *fiber.Ctx) error {
