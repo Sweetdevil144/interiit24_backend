@@ -27,6 +27,7 @@ func SearchCompanies(c *fiber.Ctx) error {
 func ComputeData(c *fiber.Ctx) error {
 	userId, err := helpers.GetUserFromContext(c)
 	companyID, err := c.ParamsInt("companyID") 
+	log.Println(companyID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid company ID"})
 	}
@@ -63,7 +64,6 @@ func ComputeData(c *fiber.Ctx) error {
 		analysisResult = nil
 	}
 	result["analysis"] = analysisResult;
-
 	var searchHistory = model.SearchHistory{
 		UserID:      userId,
 		CompanyID:   uint(companyID),

@@ -7,8 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-
-
 func GetUserFromContext(c *fiber.Ctx) (uint, error) {
 	token := c.Get("Authorization")[7:] 
 	username, err := utils.DeserialiseUser(token)
@@ -19,6 +17,5 @@ func GetUserFromContext(c *fiber.Ctx) (uint, error) {
 	if err := database.DB.Select("id").Where("username = ?", username).First(&user).Error; err != nil {
 		return 0, err
 	}
-	
 	return user.ID, nil
 }

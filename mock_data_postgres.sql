@@ -70,7 +70,43 @@ INSERT INTO "financial_data" ("company_id", "year", "stock_price", "expense", "r
 VALUES
 ((SELECT id FROM companies WHERE name = 'Babblestorm'), 2015, 9000000000, 18000000.00, 85000000.00, 40.00, NOW(), NOW()),
 ((SELECT id FROM companies WHERE name = 'Babblestorm'), 2016, 9500000000, 20000000.00, 90000000.00, 45.00, NOW(), NOW()),
-((SELECT id FROM companies WHERE name = 'Babblestorm'), 2017, 10000000000, 22000000.00, 95000000.00, 50.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Babblestorm'), 2017, 10000000000, 22000000.00, 95000000.00, 50.00, NOW(), NOW());
 ((SELECT id FROM companies WHERE name = 'Babblestorm'), 2018, 10500000000, 25000000.00, 100000000.00, 55.00, NOW(), NOW()),
 ((SELECT id FROM companies WHERE name = 'Babblestorm'), 2019, 11000000000, 27000000.00, 105000000.00, 60.00, NOW(), NOW()),
 ((SELECT id FROM companies WHERE name = 'Babblestorm'), 2020, 11500000000, 30000000.00, 110000000.00, 65.00, NOW(), NOW());
+
+
+INSERT INTO companies ("name", "country", "country_code", "market_cap", "diversity", "created_at", "updated_at")
+VALUES
+('Equinox', 'China', 'CN', 45670000, 76.2, NOW(), NOW()),
+('Acquira', 'China', 'CN', 32180000, 68.9, NOW(), NOW()),
+('Liquidity', 'China', 'CN', 89450000, 71.5, NOW(), NOW());
+
+INSERT INTO financial_data ("company_id", "year", "stock_price", "expense", "revenue", "market_share", "created_at", "updated_at")
+VALUES
+((SELECT id FROM companies WHERE name = 'Equinox'), 2015, 38000000, 5000000.00, 18000000.00, 22.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Equinox'), 2016, 41000000, 5500000.00, 20000000.00, 24.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Equinox'), 2017, 43000000, 6000000.00, 22000000.00, 26.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Equinox'), 2018, 46000000, 6500000.00, 24000000.00, 28.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Equinox'), 2019, 48000000, 7000000.00, 26000000.00, 30.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Equinox'), 2020, 50000000, 7500000.00, 28000000.00, 32.00, NOW(), NOW());
+
+-- Insert financial data for Acquira
+INSERT INTO financial_data ("company_id", "year", "stock_price", "expense", "revenue", "market_share", "created_at", "updated_at")
+VALUES
+((SELECT id FROM companies WHERE name = 'Acquira'), 2015, 28000000, 4000000.00, 14000000.00, 18.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Acquira'), 2016, 30000000, 4500000.00, 16000000.00, 20.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Acquira'), 2017, 32000000, 5000000.00, 18000000.00, 22.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Acquira'), 2018, 34000000, 5500000.00, 20000000.00, 24.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Acquira'), 2019, 36000000, 6000000.00, 22000000.00, 26.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Acquira'), 2020, 38000000, 6500000.00, 24000000.00, 28.00, NOW(), NOW());
+
+-- Insert financial data for Liquidity
+INSERT INTO financial_data ("company_id", "year", "stock_price", "expense", "revenue", "market_share", "created_at", "updated_at")
+VALUES
+((SELECT id FROM companies WHERE name = 'Liquidity'), 2015, 80000000, 10000000.00, 40000000.00, 35.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Liquidity'), 2016, 85000000, 11000000.00, 45000000.00, 37.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Liquidity'), 2017, 90000000, 12000000.00, 50000000.00, 39.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Liquidity'), 2018, 95000000, 13000000.00, 55000000.00, 41.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Liquidity'), 2019, 100000000, 14000000.00, 60000000.00, 43.00, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Liquidity'), 2020, 105000000, 15000000.00, 65000000.00, 45.00, NOW(), NOW());

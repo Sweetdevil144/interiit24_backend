@@ -9,7 +9,7 @@ import (
 	"server/model"
 	"server/utils"
 	"time"
-
+	"gorm.io/gorm"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -150,7 +150,6 @@ func CreateUser(c *fiber.Ctx) error {
 	token, _ := utils.SerialiseUser(body.Username)
 	db := database.DB
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), 4)
-
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "error",
@@ -168,9 +167,7 @@ func CreateUser(c *fiber.Ctx) error {
 		// gmail,_:=utils.DeserialiseGithubToken(body.Gmail)
 		newUser.Github = body.Github
 	}
-
 	queryRes := db.Create(&newUser)
-
 	if queryRes.Error != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": queryRes.Error,
@@ -282,12 +279,21 @@ func Login(c *fiber.Ctx) error {
 
 func CheckIfUsernameExists(c *fiber.Ctx) error {
 	var body userInfo
-	c.BodyParser(&body)
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+	}
 	db := database.DB
 	var result model.User
-	queryRes := db.First(&result, &model.User{Username: body.Username})
-	return c.Status(200).JSON(fiber.Map{"userExists": queryRes.RowsAffected == 1})
+	queryRes := db.Where("username = ?", body.Username).First(&result)
+	if queryRes.Error != nil {
+		if queryRes.Error == gorm.ErrRecordNotFound {
+			return c.Status(200).JSON(fiber.Map{"userExists": false})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Database query error"})
+	}
+	return c.Status(200).JSON(fiber.Map{"userExists": true})
 }
+
 func CheckIfGmailExists(c *fiber.Ctx) error {
 	var body userInfo
 	c.BodyParser(&body)

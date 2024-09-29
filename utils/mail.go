@@ -29,10 +29,3 @@ func SendMail(tempToken, otp, otp_type string) error {
 	return SendOTP(gmail, otp, otp_type)
 }
 
-// func SendMail(c *fiber.Ctx) error {
-// 	err := SendOTP("devgup04@gmail.com", "1234")
-// 	if err != nil {
-// 		return c.Status(400).JSON(fiber.Map{"message": err})
-// 	}
-// 	return c.Status(200).JSON(fiber.Map{"message": "success"})
-// }
