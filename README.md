@@ -1,4 +1,6 @@
-Run:
+# Readme
+
+Run the server using :
 
 ```bash
 ## auth_server 
