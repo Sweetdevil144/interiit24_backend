@@ -1,2 +1,3 @@
 /auth_server/.env
 /compute_server/.env
+.env
