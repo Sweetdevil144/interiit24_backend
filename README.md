@@ -7,3 +7,9 @@ Run:
 ## compute_server 
 `cd compute_server;go run .` PORT `6942`
 ```
+
+OR
+
+```bash
+./run.sh
+```
