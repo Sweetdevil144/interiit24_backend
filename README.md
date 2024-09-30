@@ -1,9 +1,5 @@
-# Readme.md
+Run:
 
-Run the Backend Server using the below command
+auth_server `cd auth_server;go run .` PORT `6969`
 
-```bash
-./run.sh
-```
-
-Link to Frontend Repository : [https://github.com/the-dg04/interiit24_frontend]([url](https://github.com/the-dg04/interiit24_frontend))
+compute_server `cd compute_server;go run .` PORT `6942`
