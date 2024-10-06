@@ -56,7 +56,7 @@ type GitHubUserProfile struct {
 	Email string `json:"email"`
 }
 
-func GitHubLogin(c *fiber.Ctx) error {
+func GitHubSignup(c *fiber.Ctx) error {
 	type request struct {
 		Code string `json:"code"`
 	}
@@ -164,7 +164,6 @@ func CreateUser(c *fiber.Ctx) error {
 		Username: body.Username,
 	}
 	if body.Github != "" {
-		// gmail,_:=utils.DeserialiseGithubToken(body.Gmail)
 		newUser.Github = body.Github
 	}
 	queryRes := db.Create(&newUser)
