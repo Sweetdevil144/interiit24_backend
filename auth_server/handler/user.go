@@ -80,7 +80,7 @@ func GitHubSignup(c *fiber.Ctx) error {
 }
 
 func exchangeCodeForAccessToken(code string) (*GitHubAccessTokenResponse, error) {
-	clientID := []byte(config.Config(("GITHUB_CLIENT_ID")))
+	clientID := []byte(config.Config(("GITHUB_SIGNUP_CLIENT_ID")))
 	clientSecret := []byte(config.Config(("GITHUB_CLIENT_SECRET")))
 	url := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s", clientID, clientSecret, code)
 	req, err := http.NewRequest("POST", url, nil)
