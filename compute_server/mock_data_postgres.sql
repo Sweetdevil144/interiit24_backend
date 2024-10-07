@@ -74,3 +74,16 @@ VALUES
 ((SELECT id FROM companies WHERE name = 'Babblestorm'), 2018, 10500000000, 25000000.00, 100000000.00, 55.00, NOW(), NOW()),
 ((SELECT id FROM companies WHERE name = 'Babblestorm'), 2019, 11000000000, 27000000.00, 105000000.00, 60.00, NOW(), NOW()),
 ((SELECT id FROM companies WHERE name = 'Babblestorm'), 2020, 11500000000, 30000000.00, 110000000.00, 65.00, NOW(), NOW());
+INSERT INTO financial_data ("company_id", "year", "stock_price", "expense", "revenue", "market_share", "created_at", "updated_at")
+VALUES
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2015, 1330000.00, 4900246.33, 19402078.01, 75.06, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2016, 1273600.00, 11650445.38, 73943317.58, 71.20, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2017, 19700.00, 14571356.05, 12844161.78, 11.70, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2018, 1920100.00, 1538107.74, 32226487.57, 37.98, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2019, 2135800.00, 61686123.87, 49520814.50, 67.95, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2020, 3676000.00, 58635750.09, 83288693.79, 40.41, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2021, 2972000.00, 21049564.20, 62086303.35, 65.85, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2022, 6178000.00, 29790519.29, 79287568.31, 55.78, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2023, NULL, 32879281.41, 81877647.40, 96.02, NOW(), NOW()),
+((SELECT id FROM companies WHERE name = 'Gabtype'), 2024, 2843000.00, 64622482.02, 8402729.73, 4.96, NOW(), NOW());
+
