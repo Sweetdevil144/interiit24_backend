@@ -21,6 +21,8 @@ services:
       - "6942"
     ports:
       - "6942:6942"
+    env_file: 
+      - ./.env
 
   compute_6943:
     build: ./compute_server
@@ -30,6 +32,8 @@ services:
       - "6943"
     ports:
       - "6943:6943"
+    env_file: 
+      - ./.env
 
   compute_6944:
     build: ./compute_server
@@ -39,6 +43,8 @@ services:
       - "6944"
     ports:
       - "6944:6944"
+    env_file: 
+      - ./.env
 
   auth:
     build: ./auth_server
@@ -46,3 +52,5 @@ services:
       - "6969"
     ports:
       - "6969:6969"
+    env_file: 
+      - ./.env
