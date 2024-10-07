@@ -4,7 +4,7 @@
 cleanup_existing_processes() {
   echo "Cleaning up any existing compute and auth servers..."
 
-  # Find and kill the process running on port 6942
+  # Find and kill the process running on Render's default PORT or specific port for services
   compute_pid=$(lsof -t -i :6942)
   if [ -n "$compute_pid" ]; then
     kill $compute_pid
@@ -13,7 +13,6 @@ cleanup_existing_processes() {
     echo "No existing process found on port 6942"
   fi
 
-  # Find and kill the process running on port 6969
   auth_pid=$(lsof -t -i :6969)
   if [ -n "$auth_pid" ]; then
     kill $auth_pid
@@ -33,7 +32,6 @@ cleanup_existing_processes
 cleanup() {
   echo "Terminating compute and auth servers..."
 
-  # Find the PID of the process running on port 6942 and kill it
   compute_pid=$(lsof -t -i :6942)
   if [ -n "$compute_pid" ]; then
     kill $compute_pid
@@ -42,7 +40,6 @@ cleanup() {
     echo "No process found on port 6942"
   fi
 
-  # Find the PID of the process running on port 6969 and kill it
   auth_pid=$(lsof -t -i :6969)
   if [ -n "$auth_pid" ]; then
     kill $auth_pid
@@ -58,12 +55,12 @@ cleanup() {
 # Trap SIGINT (Ctrl+C) and SIGTERM signals to run cleanup
 trap cleanup SIGINT SIGTERM
 
-# Start the compute server on port 6942
-PORT=6942 cd ./compute_server && go run . &
+# Start the compute server on Render-provided port or fallback
+PORT=${PORT:-6942} cd ./compute_server && go run . &
 COMPUTE_PID=$!
 
-# Start the auth server on port 6969
-PORT=6969 cd ./auth_server && go run . &
+# Start the auth server on Render-provided port or fallback
+PORT=${PORT:-6969} cd ./auth_server && go run . &
 AUTH_PID=$!
 
 # Wait for the servers to finish
