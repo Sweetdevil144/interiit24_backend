@@ -1,0 +1,36 @@
+version: '3'
+services:
+  compute_server:
+    build:
+      context: ./compute_server
+    ports:
+      - "6942:6942"
+      - "6943:6943"
+      - "6944:6944"
+    networks:
+      - app-network
+    command: sh -c "go run server.go"
+
+  auth_server:
+    build:
+      context: ./auth_server
+    ports:
+      - "6969:6969"
+    networks:
+      - app-network
+    command: sh -c "go run server.go"
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    depends_on:
+      - compute_server
+      - auth_server
+
+networks:
+  app-network:
+    driver: bridge
