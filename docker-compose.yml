@@ -1,36 +1,48 @@
-version: '3'
+version: '3.8'
+
 services:
-  compute_server:
-    build:
-      context: ./compute_server
-    ports:
-      - "6942:6942"
-      - "6943:6943"
-      - "6944:6944"
-    networks:
-      - app-network
-    command: sh -c "go run server.go"
-
-  auth_server:
-    build:
-      context: ./auth_server
-    ports:
-      - "6969:6969"
-    networks:
-      - app-network
-    command: sh -c "go run server.go"
-
   nginx:
-    build:
-      context: ./nginx
+    build: ./nginx
     ports:
       - "80:80"
-    networks:
-      - app-network
     depends_on:
-      - compute_server
-      - auth_server
+      - compute_6942
+      - compute_6943
+      - compute_6944
+      - auth
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
-networks:
-  app-network:
-    driver: bridge
+  compute_6942:
+    build: ./compute_server
+    environment:
+      - PORT=6942
+    expose:
+      - "6942"
+    ports:
+      - "6942:6942"
+
+  compute_6943:
+    build: ./compute_server
+    environment:
+      - PORT=6943
+    expose:
+      - "6943"
+    ports:
+      - "6943:6943"
+
+  compute_6944:
+    build: ./compute_server
+    environment:
+      - PORT=6944
+    expose:
+      - "6944"
+    ports:
+      - "6944:6944"
+
+  auth:
+    build: ./auth_server
+    expose:
+      - "6969"
+    ports:
+      - "6969:6969"
