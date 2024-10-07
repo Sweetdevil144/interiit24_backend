@@ -28,5 +28,5 @@ func SetupRoutes(app *fiber.App) {
 	user.Post("/recoverPassword", handler.PasswordRecovery)
 	user.Post("/tempLogin", handler.TempLogin)
 	user.Post("/updatePassword", handler.UpdatePassword)
-	user.Post("/githubSignup", handler.GitHubSignup)
+	user.Post("/githubTokenToUserData", handler.GithubTokenToUserData)
 }

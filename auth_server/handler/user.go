@@ -7,11 +7,11 @@ import (
 	"auth_server/utils"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"time"
-	"gorm.io/gorm"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+	"net/http"
+	"time"
 )
 
 type userInfo struct {
@@ -56,13 +56,14 @@ type GitHubUserProfile struct {
 	Email string `json:"email"`
 }
 
-func GitHubSignup(c *fiber.Ctx) error {
+func GithubTokenToUserData(c *fiber.Ctx) error {
 	type request struct {
 		Code string `json:"code"`
 	}
 
 	var data request
-	if err := c.BodyParser(&data); err != nil {
+	err := c.BodyParser(&data)
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to parse request"})
 	}
 
@@ -164,7 +165,8 @@ func CreateUser(c *fiber.Ctx) error {
 		Username: body.Username,
 	}
 	if body.Github != "" {
-		newUser.Github = body.Github
+		github, _ := utils.DeserialiseGithubToken(body.Github)
+		newUser.Github = github
 	}
 	queryRes := db.Create(&newUser)
 	if queryRes.Error != nil {
@@ -241,6 +243,11 @@ func LoginWithGithub(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "invalid token",
+		})
+	}
+	if github == "" {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "empty github",
 		})
 	}
 
