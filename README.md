@@ -24,3 +24,5 @@ nginx -s reload -c $(pwd)/nginx/nginx.conf # Reload the service.
 
 - **Frontend link:** [https://github.com/the-dg04/interiit24_frontend](https://github.com/the-dg04/interiit24_frontend)
 - **Frontend Deployment Link:** [https://interiit24-frontend.vercel.app/](https://interiit24-frontend.vercel.app/)
+- **Auth Server Link**: [Link](https://interiit24-backend-zil0.onrender.com)
+- **Compute Server Link**: [Link](https://interiit24-backend-1.onrender.com)
